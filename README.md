@@ -1,4 +1,4 @@
-# My Project App - CMES 2026
+# My Project App
 
 This is a personal project focused on building a mobile app that integrates Machine Learning (ML) for predictive user analytics. The goal is to collect daily data through the app and use it to train models like XGBoost and LSTM for my paper at the CMES 2026 conference.
 
