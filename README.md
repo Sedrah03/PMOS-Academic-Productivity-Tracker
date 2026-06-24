@@ -20,6 +20,3 @@ The project is spread over 140 days (10 Sprints).
 - Frontend: Mobile (Firebase Auth/Firestore)
 - Data Science: Python, Scikit-learn, XGBoost, TensorFlow
 - Deployment: FastAPI
-
----
-*Note: This repository is private during the initial development and ethics approval phase.*
