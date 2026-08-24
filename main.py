@@ -16,7 +16,7 @@ if firebase_cred_json:
 else:
     # إذا لم نجده (أي أننا نعمل على جهازك المحلي)، نستخدم الملف العادي
     # (تأكدنا مسبقاً أن هذا الملف محمي داخل .gitignore)
-    cred = credentials.Certificate("serviceAccountKey.json")
+    cred = credentials.Certificate("firebase_credentials.json")
 
 # تهيئة فايربيس (نتأكد أولاً أنه لم يتم تهيئته مسبقاً لتجنب الأخطاء عند إعادة تشغيل السيرفر)
 if not firebase_admin._apps:
