@@ -13,7 +13,7 @@ st.markdown(hide_st_style, unsafe_allow_html=True)
 
 API_BASE_URL = st.secrets.get("API_BASE_URL", "http://127.0.0.1:8000")
 
-# قاموس الترجمات متوافق 100% مع الموافقة الأخلاقية
+# قاموس الترجمات محدث بالكامل
 translations = {
     "English": {
         "title": "PMOS Academic Productivity Tracker",
@@ -47,39 +47,39 @@ translations = {
         "error_auth": "🔒 Unauthorized access. Invalid API Key."
     },
     "العربية": {
-        "title": "متتبع الإنتاجية الأكاديمية (PMOS)",
-        "intro": "أهلاً بكِ. يرجى إدخال بياناتك اليومية. جميع البيانات سرية ومجهولة المصدر.",
+        "title": "متتبع الإنتاجية الأكاديمية لمتلازمة متلازمة المبيض الأيضية متعددة الغدد الصماء (PMOS)",
+        "intro": "أهلاً بكِ. يرجى إدخال بياناتك اليومية لمساعدتنا في تحليل الإنتاجية. جميع البيانات سرية ومجهولة المصدر.",
         "participant_code": "رمز المشاركة (مثال: A123)",
-        "age": "العمر (يجب أن يكون بين 18-30)",
+        "age": "العمر (يجب أن يكون بين 18 و 30 عاماً)",
         "consent": "لقد قرأت وأوافق على نموذج الموافقة المستنيرة للمشاركة التطوعية.",
-        "pmos_check": "هل تم تشخيصك بمتلازمة PMOS (المعروفة سابقاً بـ PCOS) من قبل طبيب مختص؟",
-        "productivity_section": "الوحدة 1: الإنتاجية الأكاديمية",
+        "pmos_check": "هل تم تشخيصك بمتلازمة المبيض الأيضية متعددة الغدد الصماء (PMOS) المعروفة سابقاً بمتلازمة تكيس المبايض (PCOS) من قبل طبيب مختص؟",
+        "productivity_section": "الوحدة الأولى: الإنتاجية الأكاديمية",
         "productivity_score": "تقييمك لإنتاجيتك الأكاديمية اليوم (1 ضعيف جداً - 10 ممتاز)",
-        "sleep_section": "الوحدة 2: النوم والحالة البدنية",
-        "sleep_hours": "ساعات النوم الليلة الماضية",
+        "sleep_section": "الوحدة الثانية: النوم والحالة البدنية",
+        "sleep_hours": "عدد ساعات النوم الليلة الماضية",
         "fatigue_level": "مستوى التعب (1 لست متعبة أبداً - 5 متعبة جداً)",
-        "mood_section": "الوحدة 3: الحالة المزاجية والضغط النفسي",
+        "mood_section": "الوحدة الثالثة: الحالة المزاجية والضغط النفسي",
         "mood_status": "الحالة المزاجية اليوم",
         "moods": ["سعيدة", "هادئة", "نشيطة", "قلقة", "حزينة", "غاضبة", "متعبة"],
         "stress_level": "مستوى الضغط النفسي (1 لا يوجد ضغط - 5 ضغط شديد)",
-        "study_section": "الوحدة 4: الدراسة والتركيز",
+        "study_section": "الوحدة الرابعة: الدراسة والتركيز",
         "study_hours": "إجمالي ساعات الدراسة اليوم",
         "focus_level": "مستوى التركيز (1 لم أستطع التركيز - 5 تركيز تام)",
-        "lifestyle_section": "الوحدة 5: نمط الحياة والنشاط",
-        "diet": "النظام الغذائي (هل تناولتي وجبات صحية/متوازنة اليوم؟)",
+        "lifestyle_section": "الوحدة الخامسة: نمط الحياة والنشاط البدني",
+        "diet": "النظام الغذائي (هل تناولتي وجبات صحية ومتوازنة اليوم؟)",
         "diet_options": ["نعم", "جزئياً", "لا"],
-        "exercise": "هل مارستي أي نشاط بدني/رياضة اليوم؟",
-        "exercise_duration": "إذا كانت الإجابة نعم، ما هي المدة (بالدقائق)؟",
+        "exercise": "هل مارستي أي نشاط بدني أو رياضة اليوم؟",
+        "exercise_duration": "إذا كانت الإجابة نعم، ما هي المدة بالدقائق؟",
         "submit": "إرسال البيانات",
         "success": "تم إرسال بياناتك وحفظها بنجاح! شكراً لكِ.",
-        "error_required": "⚠️ يرجى إدخال رمز المشاركة والموافقة على نموذج المشاركة!",
+        "error_required": "⚠️ يرجى إدخال رمز المشاركة والموافقة على نموذج الموافقة!",
         "error_sub": "حدث خطأ أثناء إرسال البيانات.",
         "error_conn": "لا يمكن الاتصال بالسيرفر. تأكدي من أن الخادم يعمل.",
         "error_auth": "🔒 وصول غير مصرح به. مفتاح API غير صالح."
     },
     "Türkçe": {
         "title": "PMOS Akademik Verimlilik Takibi",
-        "intro": "Hoş geldiniz. Lütfen günlük verilerinizi girin. Tüm veriler anonimdir.",
+        "intro": "Hoş geldiniz. Lütfen verimliliği analiz etmemize yardımcı olmak için günlük verilerinizi girin. Tüm veriler anonimdir.",
         "participant_code": "Katılımcı Kodu (örn. A123)",
         "age": "Yaş (18-30 arası olmalıdır)",
         "consent": "Bilgilendirilmiş Gönüllü Olur Formu'nu okudum ve onaylıyorum.",
@@ -116,15 +116,29 @@ with col2:
 
 t = translations[lang]
 
+# ضبط اتجاه النص بالكامل بناءً على لغة القائمة المنسدلة
 if lang == "العربية":
     st.markdown(
         """
         <style>
-        [data-testid="block-container"] { direction: rtl; }
-        [data-testid="block-container"] p, h1, h2, h3, label, span {
+        [data-testid="block-container"] { direction: rtl; text-align: right; }
+        .stTextInput, .stNumberInput, .stSelectbox, .stSlider, div[data-baseweb="select"] {
+            direction: rtl !important;
             text-align: right !important;
-            font-family: 'Arial', sans-serif !important;
         }
+        label, p, span, h1, h2, h3 {
+            direction: rtl !important;
+            text-align: right !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+else:
+    st.markdown(
+        """
+        <style>
+        [data-testid="block-container"] { direction: ltr; text-align: left; }
         </style>
         """,
         unsafe_allow_html=True
@@ -134,7 +148,7 @@ st.title(t["title"])
 st.write(t["intro"])
 
 with st.form("student_form"):
-    st.subheader("Registration / Screening")
+    st.subheader("Registration / Screening" if lang != "العربية" else "التسجيل والفحص المبدئي")
     participant_code = st.text_input(t["participant_code"])
     age = st.number_input(t["age"], min_value=18, max_value=30, value=20)
     has_pmos = st.selectbox(t["pmos_check"], ["Yes / نعم / Evet", "No / لا / Hayır"])
@@ -168,7 +182,6 @@ if submitted:
     if not participant_code.strip() or not consent_given:
         st.error(t["error_required"])
     else:
-        # تجهيز البيانات للإرسال للسيرفر
         data = {
             "participant_code": participant_code, 
             "age": age, 
@@ -186,24 +199,18 @@ if submitted:
             "exercise_duration": exercise_duration
         }
         
-        
         try:
-            # 1. إحضار المفتاح السري من ملف الأسرار الخاص بـ Streamlit
             ui_api_key = st.secrets.get("PROJECT_API_KEY", "sedra_secret_2026")
-            
-            # 2. إرفاق المفتاح داخل ترويسة الطلب (Headers)
             headers = {"X-API-KEY": ui_api_key}
             
-            # 3. إرسال الطلب مع الترويسة
             response = requests.post(f"{API_BASE_URL}/add_student", json=data, headers=headers, timeout=30)
             
             if response.status_code == 200:
                 st.success(t["success"])
             elif response.status_code == 401:
-                # 4. طباعة الرسالة باللغات الثلاث في حال رفض السيرفر المفتاح
                 st.error(t["error_auth"])
             else:
                 st.error(f"{t['error_sub']} (Status Code: {response.status_code})")
                 
-         except requests.exceptions.RequestException:
+        except requests.exceptions.RequestException:
             st.error(t["error_conn"])
