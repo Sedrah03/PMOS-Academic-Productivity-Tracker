@@ -4,6 +4,9 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import firebase_admin
 from firebase_admin import credentials, firestore
+from fastapi import FastAPI, HTTPException, Security, status
+from fastapi.security import APIKeyHeader
+import os
 
 # 1. إعداد مفتاح الأمان للاتصال بفايربيس بشكل آمن جداً
 # نحاول جلب المفتاح السري من بيئة السيرفر (Render)
@@ -26,7 +29,20 @@ db = firestore.client()
 
 app = FastAPI()
 
-# ... (باقي الكود يبقى كما هو أسفل هذا السطر بدءاً من class StudentData)
+# تحديد اسم المفتاح كما سيأتي من الواجهة
+api_key_header = APIKeyHeader(name="X-API-KEY", auto_error=True)
+
+# جلب المفتاح السري من إعدادات Render (مثلما فعلنا بفايربيس)
+# في حال كنا نجرب على الحاسوب، سنستخدم مفتاحاً مؤقتاً "sedra_secret_2026"
+SERVER_API_KEY = os.environ.get("PROJECT_API_KEY", "sedra_secret_2026")
+
+def verify_api_key(api_key: str = Security(api_key_header)):
+    if api_key != SERVER_API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid API Key"
+        )
+    return api_key
 
 # 2. تصميم قالب البيانات الشامل (Data Dictionary)
 class StudentData(BaseModel):
@@ -52,13 +68,10 @@ def read_root():
 
 # 4. باب استقبال البيانات
 @app.post("/add_student")
-def add_student(data: StudentData):
-    # التعديل هنا: استخدمنا participant_code بدلاً من student_id الذي كان يسبب انهيار السيرفر
+def add_student(data: StudentData, api_key: str = Security(verify_api_key)):
+    # الكود القديم يبقى كما هو تماماً
     doc_ref = db.collection("students").document(data.participant_code)
-    
-    # تحويل البيانات المعتمدة من حارس الأمن إلى صيغة تفهمها قاعدة البيانات وحفظها
     doc_ref.set(data.model_dump()) 
-    
     return {"message": "تم حفظ بيانات الطالبة بنجاح!", "saved_data": data}
 
     # 5. باب جلب البيانات للوحة التحكم
