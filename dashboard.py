@@ -11,6 +11,16 @@ st.write("This is your private dashboard to view and analyze the data.")
 # إذا لم يجد الرابط في الأسرار (على السيرفر)، سيستخدم الرابط المحلي للتشغيل على جهازك
 API_BASE_URL = st.secrets.get("API_BASE_URL", "http://127.0.0.1:8000")
 
+# أضيفي هذا الكود تحت تعريف API_BASE_URL مباشرة
+
+@st.cache_data(ttl=300) # ttl=300 تعني: احتفظ بالبيانات في الذاكرة لمدة 300 ثانية (5 دقائق)
+def fetch_data():
+    response = requests.get(f"{API_BASE_URL}/get_students", timeout=30)
+    if response.status_code == 200:
+        return response.json().get("data", [])
+    return None
+
+
 if st.button("Refresh Data"):
     try:
         # 2. التعديل الثاني: استخدام الرابط الديناميكي بدلاً من الرابط الثابت

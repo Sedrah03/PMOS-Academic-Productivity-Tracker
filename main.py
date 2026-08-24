@@ -68,3 +68,8 @@ def get_students():
     # تحويل البيانات المسحوبة إلى قائمة (List)
     students_list = [doc.to_dict() for doc in docs]
     return {"data": students_list}
+
+# 6. نبض السيرفر لمنع السبات (Keep-Alive Endpoint)
+@app.get("/ping")
+def ping_server():
+    return {"status": "I am awake!"}
