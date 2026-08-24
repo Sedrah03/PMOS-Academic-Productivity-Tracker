@@ -43,7 +43,8 @@ translations = {
         "success": "Data submitted and saved successfully! Thank you.",
         "error_required": "⚠️ Please fill in your Participant Code and agree to the consent form!",
         "error_sub": "Error occurred while submitting data.",
-        "error_conn": "Cannot connect to the server. Make sure FastAPI is running."
+        "error_conn": "Cannot connect to the server. Make sure FastAPI is running.",
+        "error_auth": "🔒 Unauthorized access. Invalid API Key."
     },
     "العربية": {
         "title": "متتبع الإنتاجية الأكاديمية (PMOS)",
@@ -73,7 +74,8 @@ translations = {
         "success": "تم إرسال بياناتك وحفظها بنجاح! شكراً لكِ.",
         "error_required": "⚠️ يرجى إدخال رمز المشاركة والموافقة على نموذج المشاركة!",
         "error_sub": "حدث خطأ أثناء إرسال البيانات.",
-        "error_conn": "لا يمكن الاتصال بالسيرفر. تأكدي من أن الخادم يعمل."
+        "error_conn": "لا يمكن الاتصال بالسيرفر. تأكدي من أن الخادم يعمل.",
+        "error_auth": "🔒 وصول غير مصرح به. مفتاح API غير صالح."
     },
     "Türkçe": {
         "title": "PMOS Akademik Verimlilik Takibi",
@@ -103,7 +105,8 @@ translations = {
         "success": "Veriler başarıyla gönderildi ve kaydedildi! Teşekkürler.",
         "error_required": "⚠️ Lütfen Katılımcı Kodunu girin ve onam formunu onaylayın!",
         "error_sub": "Veriler gönderilirken bir hata oluştu.",
-        "error_conn": "Sunucuya bağlanılamıyor. Sunucunun çalıştığından emin olun."
+        "error_conn": "Sunucuya bağlanılamıyor. Sunucunun çalıştığından emin olun.",
+        "error_auth": "🔒 Yetkisiz erişim. Geçersiz API anahtarı."
     }
 }
 
@@ -182,12 +185,25 @@ if submitted:
             "exercised_today": True if "Yes" in exercised_today else False,
             "exercise_duration": exercise_duration
         }
+
         
-        try:
-            response = requests.post(f"{API_BASE_URL}/add_student", json=data, timeout=30)
+       try:
+            # 1. إحضار المفتاح السري من ملف الأسرار الخاص بـ Streamlit
+            ui_api_key = st.secrets.get("PROJECT_API_KEY", "sedra_secret_2026")
+            
+            # 2. إرفاق المفتاح داخل ترويسة الطلب (Headers)
+            headers = {"X-API-KEY": ui_api_key}
+            
+            # 3. إرسال الطلب مع الترويسة
+            response = requests.post(f"{API_BASE_URL}/add_student", json=data, headers=headers, timeout=30)
+            
             if response.status_code == 200:
                 st.success(t["success"])
+            elif response.status_code == 401:
+                # 4. طباعة الرسالة باللغات الثلاث في حال رفض السيرفر المفتاح
+                st.error(t["error_auth"])
             else:
                 st.error(f"{t['error_sub']} (Status Code: {response.status_code})")
+                
         except requests.exceptions.RequestException:
             st.error(t["error_conn"])
