@@ -185,9 +185,9 @@ if submitted:
             "exercised_today": True if "Yes" in exercised_today else False,
             "exercise_duration": exercise_duration
         }
-
         
-       try:
+        
+        try:
             # 1. إحضار المفتاح السري من ملف الأسرار الخاص بـ Streamlit
             ui_api_key = st.secrets.get("PROJECT_API_KEY", "sedra_secret_2026")
             
@@ -205,5 +205,5 @@ if submitted:
             else:
                 st.error(f"{t['error_sub']} (Status Code: {response.status_code})")
                 
-        except requests.exceptions.RequestException:
+         except requests.exceptions.RequestException:
             st.error(t["error_conn"])
