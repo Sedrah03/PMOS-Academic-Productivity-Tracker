@@ -86,3 +86,10 @@ def get_students():
 @app.get("/ping")
 def ping_server():
     return {"status": "I am awake!"}
+
+# 7. باب جلب البيانات للوحة التحكم (محمي بالمفتاح السري)
+@app.get("/get_students")
+def get_students(api_key: str = Security(verify_api_key)):
+    docs = db.collection("students").stream()
+    students_list = [doc.to_dict() for doc in docs]
+    return {"data": students_list}    

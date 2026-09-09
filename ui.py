@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import json
 
 # إخفاء القائمة العلوية وشريط Streamlit تماماً
 hide_st_style = """
@@ -200,10 +201,24 @@ if submitted:
         }
         
         try:
-            ui_api_key = st.secrets.get("PROJECT_API_KEY", "sedra_secret_2026")
-            headers = {"X-API-KEY": ui_api_key}
+            # 1. جلب الرابط والمفتاح السري وتنظيفهما من أي مسافات أو رموز مخفية باستخدام strip()
+            clean_url = API_BASE_URL.strip()
+            ui_api_key = st.secrets.get("PROJECT_API_KEY", "sedra_secret_2026").strip()
             
-            response = requests.post(f"{API_BASE_URL}/add_student", json=data, headers=headers, timeout=30)
+            # 2. إجبار المفتاح ليكون باللغة الإنجليزية القياسية فقط (حذف أي رمز عربي مخفي التصق به)
+            ui_api_key = ui_api_key.encode('ascii', 'ignore').decode('ascii')
+            
+            # 3. إعداد ترويسة الطلب بشكل آمن وتحديد نوع التشفير
+            headers = {
+                "X-API-KEY": ui_api_key,
+                "Content-Type": "application/json; charset=utf-8"
+            }
+            
+            # 4. تشفير البيانات (التي تحوي نصوصاً عربية وتركية) بصيغة عالمية آمنة لا تسبب أخطاء
+            json_payload = json.dumps(data, ensure_ascii=False).encode('utf-8')
+            
+            # 5. إرسال الطلب باستخدام البيانات المشفرة (استخدمنا data بدلاً من json)
+            response = requests.post(f"{clean_url}/add_student", data=json_payload, headers=headers, timeout=30)
             
             if response.status_code == 200:
                 st.success(t["success"])
