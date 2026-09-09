@@ -202,7 +202,7 @@ if submitted:
         
         try:
             # 1. جلب الرابط والمفتاح السري وتنظيفهما من أي مسافات أو رموز مخفية باستخدام strip()
-            clean_url = API_BASE_URL.strip()
+            clean_url = API_BASE_URL.strip().rstrip("/")
             ui_api_key = st.secrets.get("PROJECT_API_KEY", "sedra_secret_2026").strip()
             
             # 2. إجبار المفتاح ليكون باللغة الإنجليزية القياسية فقط (حذف أي رمز عربي مخفي التصق به)
