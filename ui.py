@@ -14,14 +14,15 @@ st.markdown(hide_st_style, unsafe_allow_html=True)
 
 API_BASE_URL = st.secrets.get("API_BASE_URL", "http://127.0.0.1:8000")
 
-# قاموس الترجمات محدث بالكامل
+# قاموس الترجمات محدث بالكامل مع نصوص الموافقة
 translations = {
     "English": {
         "title": "PMOS Academic Productivity Tracker",
         "intro": "Welcome. Please enter your daily data to help us analyze productivity. All data is anonymous.",
         "participant_code": "Participant Code (e.g., A123)",
         "age": "Age (Must be 18-30)",
-        "consent": "I have read and agree to the Informed Volunteer Consent Form.",
+        "consent_text": "I voluntarily agree to participate in this research. I understand my contact information will only be used to send the app link and for academic research purposes, processed in accordance with privacy standards.",
+        "consent": "I agree to the Informed Volunteer Consent Form.",
         "pmos_check": "Have you been diagnosed with PMOS (formerly PCOS) by a specialist doctor?",
         "productivity_section": "Module 1: Academic Productivity",
         "productivity_score": "Overall Academic Productivity Today (1 Very Unproductive - 10 Very Productive)",
@@ -48,11 +49,12 @@ translations = {
         "error_auth": "🔒 Unauthorized access. Invalid API Key."
     },
     "العربية": {
-        "title": "متتبع الإنتاجية الأكاديمية لمتلازمة متلازمة المبيض الأيضية متعددة الغدد الصماء (PMOS)",
+        "title": "متتبع الإنتاجية الأكاديمية لمتلازمة المبيض الأيضية متعددة الغدد الصماء (PMOS)",
         "intro": "أهلاً بكِ. يرجى إدخال بياناتك اليومية لمساعدتنا في تحليل الإنتاجية. جميع البيانات سرية ومجهولة المصدر.",
         "participant_code": "رمز المشاركة (مثال: A123)",
         "age": "العمر (يجب أن يكون بين 18 و 30 عاماً)",
-        "consent": "لقد قرأت وأوافق على نموذج الموافقة المستنيرة للمشاركة التطوعية.",
+        "consent_text": "أوافق على المشاركة طوعاً في هذا البحث. أفهم أن بيانات التواصل الخاصة بي ستُستخدم فقط لإرسال رابط التطبيق ولأغراض البحث الأكاديمي، وستتم معالجتها وفقاً لمعايير الخصوصية.",
+        "consent": "أوافق على نموذج الموافقة المستنيرة.",
         "pmos_check": "هل تم تشخيصك بمتلازمة المبيض الأيضية متعددة الغدد الصماء (PMOS) المعروفة سابقاً بمتلازمة تكيس المبايض (PCOS) من قبل طبيب مختص؟",
         "productivity_section": "الوحدة الأولى: الإنتاجية الأكاديمية",
         "productivity_score": "تقييمك لإنتاجيتك الأكاديمية اليوم (1 ضعيف جداً - 10 ممتاز)",
@@ -83,6 +85,7 @@ translations = {
         "intro": "Hoş geldiniz. Lütfen verimliliği analiz etmemize yardımcı olmak için günlük verilerinizi girin. Tüm veriler anonimdir.",
         "participant_code": "Katılımcı Kodu (örn. A123)",
         "age": "Yaş (18-30 arası olmalıdır)",
+        "consent_text": "Bu araştırmaya gönüllü olarak katılmayı kabul ediyorum. İletişim bilgilerimin yalnızca uygulama bağlantısını iletmek ve akademik araştırma kapsamında kullanılacağını, verilerimin gizlilik standartlarına uygun işleneceğini anlıyorum.",
         "consent": "Bilgilendirilmiş Gönüllü Olur Formu'nu okudum ve onaylıyorum.",
         "pmos_check": "Bir uzman hekim tarafından PMOS (eski adıyla PCOS) tanısı aldınız mı?",
         "productivity_section": "Modül 1: Akademik Verimlilik",
@@ -153,7 +156,11 @@ with st.form("student_form"):
     participant_code = st.text_input(t["participant_code"])
     age = st.number_input(t["age"], min_value=18, max_value=30, value=20)
     has_pmos = st.selectbox(t["pmos_check"], ["Yes / نعم / Evet", "No / لا / Hayır"])
+    
+    # --- التعديل هنا: عرض نص الموافقة في صندوق بارز ثم زر الاختيار ---
+    st.info(t["consent_text"])
     consent_given = st.checkbox(t["consent"])
+    # ------------------------------------------------------------------
     
     st.markdown("---")
 
@@ -201,23 +208,18 @@ if submitted:
         }
         
         try:
-            # 1. جلب الرابط والمفتاح السري وتنظيفهما من أي مسافات أو رموز مخفية باستخدام strip()
             clean_url = API_BASE_URL.strip().rstrip("/")
             ui_api_key = st.secrets.get("PROJECT_API_KEY", "sedra_secret_2026").strip()
             
-            # 2. إجبار المفتاح ليكون باللغة الإنجليزية القياسية فقط (حذف أي رمز عربي مخفي التصق به)
             ui_api_key = ui_api_key.encode('ascii', 'ignore').decode('ascii')
             
-            # 3. إعداد ترويسة الطلب بشكل آمن وتحديد نوع التشفير
             headers = {
                 "X-API-KEY": ui_api_key,
                 "Content-Type": "application/json; charset=utf-8"
             }
             
-            # 4. تشفير البيانات (التي تحوي نصوصاً عربية وتركية) بصيغة عالمية آمنة لا تسبب أخطاء
             json_payload = json.dumps(data, ensure_ascii=False).encode('utf-8')
             
-            # 5. إرسال الطلب باستخدام البيانات المشفرة (استخدمنا data بدلاً من json)
             response = requests.post(f"{clean_url}/add_student", data=json_payload, headers=headers, timeout=30)
             
             if response.status_code == 200:
