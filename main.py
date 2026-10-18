@@ -8,6 +8,8 @@ from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
 import firebase_admin
 from firebase_admin import credentials, firestore
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 # ==========================================
 # 1. إعداد مفتاح الأمان للاتصال بفايربيس بشكل آمن جداً
@@ -102,24 +104,48 @@ class SymptomInput(BaseModel):
 def read_root():
     return {"message": "مرحباً! السيرفر يعمل وتم الربط بقاعدة بيانات فايربيس بنجاح."}
 
+
+
 # باب استقبال البيانات (محمي بالمفتاح السري)
 @app.post("/add_student")
 def add_student(data: StudentData, api_key: str = Security(verify_api_key)):
-    doc_ref = db.collection("students").document(data.participant_code)
-    doc_ref.set(data.model_dump()) 
-    return {"message": "تم حفظ بيانات الطالبة بنجاح!", "saved_data": data}
+    today = datetime.now(ZoneInfo("Europe/Istanbul")).strftime("%Y-%m-%d")
+
+    student_ref = db.collection("students").document(data.participant_code)
+
+    # الوثيقة الرئيسية: بيانات ثابتة عن المشاركة
+    student_ref.set({
+        "participant_code": data.participant_code,
+        "age": data.age,
+        "consent_given": data.consent_given,
+        "has_pmos": data.has_pmos,
+    }, merge=True)
+
+    # سجل اليوم: كل الحقول مع التاريخ ووقت الإرسال
+    entry = data.model_dump()
+    entry["date"] = today
+    entry["submitted_at"] = firestore.SERVER_TIMESTAMP
+    student_ref.collection("entries").document(today).set(entry)
+
+    return {"message": "تم حفظ بيانات الطالبة بنجاح!", "date": today}
+
+
 
 # نبض السيرفر لمنع السبات (Keep-Alive Endpoint)
 @app.get("/ping")
 def ping_server():
     return {"status": "I am awake!"}
 
+
+
 # باب جلب البيانات للوحة التحكم (النسخة الوحيدة المحمية بالمفتاح السري)
 @app.get("/get_students")
 def get_students(api_key: str = Security(verify_api_key)):
-    docs = db.collection("students").stream()
+    docs = db.collection_group("entries").stream()
     students_list = [doc.to_dict() for doc in docs]
     return {"data": students_list}
+
+
 
 @app.post("/predict")
 def predict(data: SymptomInput, api_key: str = Security(verify_api_key)):

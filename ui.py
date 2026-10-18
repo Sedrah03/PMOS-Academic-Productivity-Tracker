@@ -211,7 +211,7 @@ if submitted:
         
         try:
             clean_url = API_BASE_URL.strip().rstrip("/")
-            ui_api_key = st.secrets.get("PROJECT_API_KEY", "sedra_secret_2026").strip()
+            ui_api_key = st.secrets.get("PROJECT_API_KEY", "").strip()
             
             ui_api_key = ui_api_key.encode('ascii', 'ignore').decode('ascii')
             
