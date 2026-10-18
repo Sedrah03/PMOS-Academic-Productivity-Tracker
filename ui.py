@@ -151,6 +151,8 @@ else:
 st.title(t["title"])
 st.write(t["intro"])
 
+
+
 with st.form("student_form"):
     st.subheader("Registration / Screening" if lang != "العربية" else "التسجيل والفحص المبدئي")
     participant_code = st.text_input(t["participant_code"])
@@ -231,3 +233,126 @@ if submitted:
                 
         except requests.exceptions.RequestException:
             st.error(t["error_conn"])
+
+
+# ==========================================
+# شاشة الفحص المبدئي بالأعراض (PCOS Screening)
+# ==========================================
+screen_t = {
+    "English": {
+        "header": "Optional: Symptom Pattern Check",
+        "intro": "Answer a few questions to see how your reported symptoms compare with patterns in a research dataset. This is not a diagnosis. Your answers here are not saved.",
+        "age": "Age", "weight": "Weight (kg)", "height": "Height (cm)",
+        "cycle": "Menstrual cycle", "cycle_opts": ["Regular", "Irregular"],
+        "cycle_len": "Cycle length (days)",
+        "q_wg": "Recent weight gain", "q_hg": "Unwanted hair growth",
+        "q_sd": "Skin darkening (e.g., neck, underarms)", "q_hl": "Hair loss",
+        "q_pm": "Pimples / acne", "q_ff": "Frequent fast food", "q_ex": "Regular exercise",
+        "submit": "Check",
+        "levels": {"low": "Low similarity", "moderate": "Moderate similarity", "high": "High similarity"},
+        "msg": "Your reported symptoms show {level} to the patterns found in the research dataset. If you have health concerns, please consult a physician.",
+        "disclaimer": "Research prototype only. Not a medical diagnosis.",
+        "err_conn": "Cannot connect to the server. Please try again in a minute.",
+        "err_auth": "Unauthorized access.", "err_other": "Something went wrong.",
+    },
+    "العربية": {
+        "header": "اختياري: فحص نمط الأعراض",
+        "intro": "أجيبي عن بعض الأسئلة لترين مدى تشابه الأعراض التي تذكرينها مع أنماط في قاعدة بيانات بحثية. هذا ليس تشخيصاً. إجاباتك هنا لا تُحفظ.",
+        "age": "العمر", "weight": "الوزن (كغ)", "height": "الطول (سم)",
+        "cycle": "الدورة الشهرية", "cycle_opts": ["منتظمة", "غير منتظمة"],
+        "cycle_len": "مدة الدورة (أيام)",
+        "q_wg": "زيادة حديثة في الوزن", "q_hg": "نمو شعر غير مرغوب",
+        "q_sd": "اسمرار الجلد (مثل الرقبة أو تحت الإبط)", "q_hl": "تساقط الشعر",
+        "q_pm": "حبوب / حب الشباب", "q_ff": "تناول متكرر للوجبات السريعة", "q_ex": "ممارسة الرياضة بانتظام",
+        "submit": "افحصي",
+        "levels": {"low": "تشابه منخفض", "moderate": "تشابه متوسط", "high": "تشابه مرتفع"},
+        "msg": "الأعراض التي ذكرتيها تُظهر {level} مع الأنماط الموجودة في قاعدة البيانات البحثية. إذا كانت لديكِ مخاوف صحية، يُرجى استشارة طبيب.",
+        "disclaimer": "نموذج بحثي أولي فقط. ليس تشخيصاً طبياً.",
+        "err_conn": "لا يمكن الاتصال بالسيرفر. حاولي مجدداً بعد دقيقة.",
+        "err_auth": "وصول غير مصرح به.", "err_other": "حدث خطأ ما.",
+    },
+    "Türkçe": {
+        "header": "İsteğe bağlı: Belirti Örüntüsü Kontrolü",
+        "intro": "Bildirdiğiniz belirtilerin bir araştırma veri setindeki örüntülerle ne kadar benzeştiğini görmek için birkaç soruyu yanıtlayın. Bu bir teşhis değildir. Buradaki yanıtlarınız kaydedilmez.",
+        "age": "Yaş", "weight": "Kilo (kg)", "height": "Boy (cm)",
+        "cycle": "Adet döngüsü", "cycle_opts": ["Düzenli", "Düzensiz"],
+        "cycle_len": "Döngü uzunluğu (gün)",
+        "q_wg": "Yakın zamanda kilo alımı", "q_hg": "İstenmeyen tüylenme",
+        "q_sd": "Cilt koyulaşması (boyun, koltuk altı vb.)", "q_hl": "Saç dökülmesi",
+        "q_pm": "Sivilce / akne", "q_ff": "Sık fast food tüketimi", "q_ex": "Düzenli egzersiz",
+        "submit": "Kontrol Et",
+        "levels": {"low": "Düşük benzerlik", "moderate": "Orta düzey benzerlik", "high": "Yüksek benzerlik"},
+        "msg": "Bildirdiğiniz belirtiler, araştırma veri setindeki örüntülerle {level} göstermektedir. Sağlığınızla ilgili endişeleriniz varsa lütfen bir hekime danışın.",
+        "disclaimer": "Yalnızca araştırma prototipi. Tıbbi teşhis değildir.",
+        "err_conn": "Sunucuya bağlanılamıyor. Lütfen bir dakika sonra tekrar deneyin.",
+        "err_auth": "Yetkisiz erişim.", "err_other": "Bir şeyler ters gitti.",
+    },
+}
+ss = screen_t[lang]
+
+
+def risk_level(p):
+    if p < 0.35:
+        return "low"
+    elif p < 0.65:
+        return "moderate"
+    return "high"
+
+
+st.markdown("---")
+with st.expander(ss["header"]):
+    st.caption(ss["intro"])
+    with st.form("screening_form"):
+        s_age = st.number_input(ss["age"], min_value=18, max_value=30, value=20)
+        s_weight = st.number_input(ss["weight"], min_value=30.0, max_value=200.0, value=60.0, step=0.5)
+        s_height = st.number_input(ss["height"], min_value=120.0, max_value=220.0, value=165.0, step=0.5)
+        s_cycle = st.selectbox(ss["cycle"], ss["cycle_opts"])
+        s_cycle_len = st.number_input(ss["cycle_len"], min_value=1, max_value=15, value=5)
+        s_wg = st.checkbox(ss["q_wg"])
+        s_hg = st.checkbox(ss["q_hg"])
+        s_sd = st.checkbox(ss["q_sd"])
+        s_hl = st.checkbox(ss["q_hl"])
+        s_pm = st.checkbox(ss["q_pm"])
+        s_ff = st.checkbox(ss["q_ff"])
+        s_ex = st.checkbox(ss["q_ex"])
+        s_submit = st.form_submit_button(ss["submit"])
+
+    if s_submit:
+        payload = {
+            "age": int(s_age),
+            "weight_kg": float(s_weight),
+            "height_cm": float(s_height),
+            "cycle_regular": s_cycle == ss["cycle_opts"][0],
+            "cycle_length_days": int(s_cycle_len),
+            "weight_gain": s_wg,
+            "hair_growth": s_hg,
+            "skin_darkening": s_sd,
+            "hair_loss": s_hl,
+            "pimples": s_pm,
+            "fast_food": s_ff,
+            "regular_exercise": s_ex,
+        }
+        try:
+            base = API_BASE_URL.strip().rstrip("/")
+            key = st.secrets.get("PROJECT_API_KEY", "").strip()
+            key = key.encode("ascii", "ignore").decode("ascii")
+            with st.spinner("..."):
+                r = requests.post(
+                    f"{base}/predict",
+                    json=payload,
+                    headers={"X-API-KEY": key},
+                    timeout=60,
+                )
+            if r.status_code == 200:
+                prob = r.json()["probability"]
+                level_key = risk_level(prob)
+                level_text = ss["levels"][level_key]
+                st.subheader(level_text)
+                st.write(ss["msg"].format(level=level_text.lower() if lang == "English" else level_text))
+                st.caption(ss["disclaimer"])
+            elif r.status_code == 401:
+                st.error(ss["err_auth"])
+            else:
+                st.error(f"{ss['err_other']} ({r.status_code})")
+        except requests.exceptions.RequestException:
+            st.error(ss["err_conn"])            
